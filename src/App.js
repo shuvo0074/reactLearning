@@ -1,14 +1,18 @@
 import { useState, useEffect, useMemo, memo } from "react";
 
+// https://blog.logrocket.com/react-memo-vs-usememo/
+
+
+
 import { useRef } from "react";
-function Counterss() {
+function Counterss({ memoizedValue }) {
   const renderCount = useRef(0);
   return (
     <div className="mt-3">
       <p className="dark:text-white">
         Nothing has changed here but I've now rendered:{" "}
         <span className="dark:text-green-300 text-grey-900">
-          {(renderCount.current++)} time(s)
+          {memoizedValue} time(s)
         </span>
       </p>
     </div>
@@ -21,6 +25,11 @@ const Counts = memo(Counterss)
 const constants = { MOZARELLA: "MOZARELLA", CHEDDAR: "CHEDDAR", PARMESAN: "PARMESAN", CABERNET: "CABERNET", CHARDONAY: "CHARDONAY", MERLOT: "MERLOT" }
 export default function ParentComponent() {
   const { MOZARELLA, CHEDDAR, PARMESAN, CABERNET, CHARDONAY, MERLOT } = constants;
+  const [times, setTimes] = useState(0);
+  const useMemoRef = useRef(0);
+
+  const incrementUseMemoRef = () => useMemoRef.current++;
+  const memoizedValue = useMemo(() => incrementUseMemoRef(), [times]);
 
   const [cheeseType, setCheeseType] = useState("");
   const [wine, setWine] = useState("");
@@ -53,9 +62,9 @@ export default function ParentComponent() {
         Select a cheese and we will tell you which wine goes best!
       </h1>
       <div className="flex flex-col gap-4 mt-10">
-        <button text={MOZARELLA} onClick={() => setCheeseType(MOZARELLA)} />
-        <button text={CHEDDAR} onClick={() => setCheeseType(CHEDDAR)} />
-        <button text={PARMESAN} onClick={() => setCheeseType(PARMESAN)} />
+        <button className="bg-indigo-200 py-2 px-10 rounded-md" text={MOZARELLA} onClick={() => setCheeseType(MOZARELLA)} />
+        <button className="bg-indigo-200 py-2 px-10 rounded-md" text={CHEDDAR} onClick={() => setCheeseType(CHEDDAR)} />
+        <button className="bg-indigo-200 py-2 px-10 rounded-md" text={PARMESAN} onClick={() => setCheeseType(PARMESAN)} />
       </div>
       {cheeseType && (
         <p className="mt-5 dark:text-green-400 font-semibold">
@@ -63,7 +72,14 @@ export default function ParentComponent() {
           goes best.
         </p>
       )}
-      <Counts />
+      <button
+        className="bg-indigo-200 py-2 px-10 rounded-md"
+        onClick={() => setTimes(times + 1)}
+      >
+        Force render
+      </button>
+      {/* <Counts /> */}
+      <Counterss memoizedValue={memoizedValue} />
     </div>
   );
 }
