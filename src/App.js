@@ -1,47 +1,47 @@
-import logo from './logo.svg';
-import './App.css';
-import { useMemo, useState } from 'react';
+import { useState, useEffect, useCallback } from "react";
 
-const ExpensiveCalculation = ({ number }) => {
-  const calculateFactorial = (n) => {
-    if (n < 0) {
-      return -1;
-    }
-    if (n === 0 || n === 1) {
-      return 1;
-    }
-    return n * calculateFactorial(n - 1);
-  };
+const Timer = ({ start, stop }) => {
+  const [seconds, setSeconds] = useState(0);
 
-  const factorial = useMemo(() => {
-    console.log("Calculating factorial",number);
-    return calculateFactorial(number);
-  }, [number]);
+  useEffect(() => {
+    let interval = null;
+    if (start) {
+      interval = setInterval(() => {
+        setSeconds((s) => s + 1);
+      }, 1000);
+    } else if (!start && seconds !== 0) {
+      clearInterval(interval);
+    }
+    return () => clearInterval(interval);
+  }, [start, seconds]);
 
   return (
-    <p>
-      {number}! = {factorial}
-    </p>
+    <div>
+      <p>Seconds: {seconds}</p>
+      <button onClick={stop}>Stop</button>
+    </div>
   );
 };
 
+const App = () => {
+  const [start, setStart] = useState(false);
 
-function App() {
-  const [number, setNumber] = useState(0);
+  const handleStart = useCallback(() => {
+    console.log("start");
+    setStart(true);
+  }, []);
 
-  const handleChange = (e) => {
-    setNumber(e.target.value);
-  };
-
+  const handleStop = useCallback(() => {
+    console.log("end");
+    setStart(false);
+  }, []);
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <input type="number" value={number} onChange={handleChange} />
-        <ExpensiveCalculation number={number} />
-      </header>
+    <div>
+      <h1>Timer App</h1>
+      <button onClick={handleStart}>Start</button>
+      <Timer start={start} stop={handleStop} />
     </div>
   );
-}
-
+};
 export default App;
